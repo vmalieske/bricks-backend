@@ -39,20 +39,7 @@ export interface IProduct extends Document {
     updatedAt: Date;
 }
 
-export interface Product {
-    title?: string;
-    productNumber?: string;
-    brand?: string;
-    brickFormat?: BrickFormat;
-    brickCount?: number;
-    productMeasurements?: string;
-    status?: ProductStatus;
-    shop?: ShopInfo;
-    images?: ProductImage[];
-    wishlistData?: WishlistData;
-    ownershipData?: OwnershipData;
-    notes?: string;
-}
+export type ProductUpdate = Partial<Omit<IProduct, keyof Document | 'createdAt' | 'updatedAt'>>;
 
 
 //Sub Interfaces

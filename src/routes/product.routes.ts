@@ -1,6 +1,6 @@
 import { Elysia, NotFoundError } from 'elysia';
 import { Product } from '../models/product.model';
-import type { IProduct } from '../models/product.types';
+import type { ProductUpdate } from '../models/product.types';
 
 export const productRoutes = new Elysia({ prefix: '/products' })
 
@@ -20,16 +20,15 @@ export const productRoutes = new Elysia({ prefix: '/products' })
     return product.save();
   })
 
-  .put('/:id', async ({ params, body }) => {
-    const updateBody = body as IProduct;
-    const product = await Product.findByIdAndUpdate(
-        params.id,
-        { $set: updateBody },
-        { new: true, runValidators: true }
-    );
-    if(!product) throw new NotFoundError();
-    return product;
-  })
+.put('/:id', async ({ params, body }) => {
+  const product = await Product.findByIdAndUpdate(
+    params.id,
+    { $set: body as ProductUpdate },
+    { new: true, runValidators: true }
+  );
+  if (!product) throw new NotFoundError();
+  return product;
+})
 
   .delete('/:id', async ({ params }) => {
     const product = await Product.findByIdAndDelete(params.id);
