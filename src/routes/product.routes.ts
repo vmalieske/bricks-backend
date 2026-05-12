@@ -6,26 +6,33 @@ export const productRoutes = new Elysia({ prefix: '/products' })
 
   .get('/', async () => {
     const products = await Product.find().sort({ createdAt: -1 });
-    return products;
+    return products.map((p) => ({ ...p.toObject(), _id: p._id.toString() }));
   })
 
   .get('/owned', async () => {
-    return Product.find({ status: 'owned' }).sort({ createdAt: -1 });
+    const products = await Product.find({ status: 'owned' }).sort({ createdAt: -1 });
+    return products.map((p) => ({ ...p.toObject(), _id: p._id.toString() }));
   })
 
   .get('/wishlist', async () => {
-    return Product.find({ status: 'wishlist' }).sort({ createdAt: -1 });
+    const products = await Product.find({ status: 'wishlist' }).sort({ createdAt: -1 });
+    return products.map((p) => ({ ...p.toObject(), _id: p._id.toString() }));
   })
 
   .get('/:id', async ({ params }) => {
     const product = await Product.findById(params.id);
     if (!product) throw new NotFoundError();
-    return product;
+    return { ...product.toObject(), _id: product._id.toString() };
   })
 
   .post('/', async ({ body }) => {
     const product = new Product(body);
-    return product.save();
+    const saved = await product.save();
+
+    return {
+      ...saved.toObject(),
+      _id: saved._id.toString(),
+    };
   })
 
   .put('/:id', async ({ params, body }) => {
@@ -35,7 +42,7 @@ export const productRoutes = new Elysia({ prefix: '/products' })
       { new: true, runValidators: true },
     );
     if (!product) throw new NotFoundError();
-    return product;
+    return { ...product.toObject(), _id: product._id.toString() };
   })
 
   .delete('/:id', async ({ params }) => {
