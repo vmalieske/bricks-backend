@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import type { 
+import type {
   IProduct,
   Money,
   ProductImage,
@@ -7,98 +7,111 @@ import type {
   WishlistData,
   OwnershipData,
 } from './product.types';
-import { 
-  AVAILABILITY_STATUS, 
-  BRICK_FORMATS, 
-  CONDITIONS, 
-  PRODUCT_STATUS, 
-  STORAGE_TYPES, 
+import {
+  AVAILABILITY_STATUS,
+  BRICK_FORMATS,
+  CONDITIONS,
+  PRODUCT_STATUS,
+  STORAGE_TYPES,
 } from './product.types';
+
+const transform = (_: any, ret: any) => {
+  ret.id = ret._id.toString();
+  delete ret._id;
+  delete ret.__v;
+  return ret;
+};
+
+const schemaOptions = {
+  toJSON: { virtuals: true, transform },
+  toObject: { virtuals: true, transform },
+};
 
 // Sub Schema
 const MoneySchema = new Schema<Money>(
-    {
-        amount: { type: Number, required: true },
-        currency: { type: String, required: true, default: 'EUR' },
-    },
-    { _id: false }
+  {
+    amount: { type: Number, required: true },
+    currency: { type: String, required: true, default: 'EUR' },
+  },
+  { _id: false },
 );
 
 const OwnershipDataSchema = new Schema<OwnershipData>(
-    {
-        purchasePrice: { type: MoneySchema },
-        purchaseDate: { type: Date },
-        location: { type: String },
-        condition: {
-            type: String,
-            enum: CONDITIONS,
-        },
+  {
+    purchasePrice: { type: MoneySchema },
+    purchaseDate: { type: Date },
+    location: { type: String },
+    condition: {
+      type: String,
+      enum: CONDITIONS,
     },
-    { _id: false }
+  },
+  { _id: false },
 );
 
 const ProductImageShema = new Schema<ProductImage>(
-    {
-        type: { type: String, enum: STORAGE_TYPES, required: true },
-        url: { type: String, required: true },
-        isPrimary: { type: Boolean, default: false },
-    },
-    { _id: false }
+  {
+    type: { type: String, enum: STORAGE_TYPES, required: true },
+    url: { type: String, required: true },
+    isPrimary: { type: Boolean, default: false },
+  },
+  { _id: false },
 );
 
 const ShopInfoSchema = new Schema<ShopInfo>(
-    {
-        name: { type: String, required: true },
-        productUrl: { type: String },
-    },
-    { _id: false }
+  {
+    name: { type: String, required: true },
+    productUrl: { type: String },
+  },
+  { _id: false },
 );
 
 const WishlistDataSchema = new Schema<WishlistData>(
-    {
-        priceAtAdding: { type: MoneySchema },
-        currentPrice: { type: MoneySchema },
-        availabilityStatus: {
-            type: String,
-            enum: AVAILABILITY_STATUS,
-        },
-        lastCheckedAt: { type: Date }
+  {
+    priceAtAdding: { type: MoneySchema },
+    currentPrice: { type: MoneySchema },
+    availabilityStatus: {
+      type: String,
+      enum: AVAILABILITY_STATUS,
     },
-    { _id: false }
+    lastCheckedAt: { type: Date },
+  },
+  { _id: false },
 );
 
 // Main Schema
 const ProductSchema = new Schema<IProduct>(
-    {
-        title: { type: String, required: true, trim: true },
-        productNumber: { type: String, trim: true },
-        brand: { type: String, trim: true },
-        brickFormat: {
-            type: String,
-            enum: BRICK_FORMATS,
-            required: true,
-        },
-        brickCount: { type: Number, required: true, min: 1 },
-        productMeasurements: { type: String },
-
-        status: {
-            type: String,
-            enum: PRODUCT_STATUS,
-            required: true,
-            default: 'wishlist',
-        },
-
-        shop: { type: ShopInfoSchema },
-        images: { type: [ProductImageShema], default: [] },
-
-        wishlistData: { type: WishlistDataSchema },
-        ownershipData: { type: OwnershipDataSchema },
-
-        notes: { type: String },
+  {
+    title: { type: String, required: true, trim: true },
+    productNumber: { type: String, trim: true },
+    brand: { type: String, trim: true },
+    brickFormat: {
+      type: String,
+      enum: BRICK_FORMATS,
+      required: true,
     },
-    {
-        timestamps: true,
-    }
+    brickCount: { type: Number, required: true, min: 1 },
+    productMeasurements: { type: String },
+
+    status: {
+      type: String,
+      enum: PRODUCT_STATUS,
+      required: true,
+      default: 'wishlist',
+    },
+
+    shop: { type: ShopInfoSchema },
+    images: { type: [ProductImageShema], default: [] },
+
+    wishlistData: { type: WishlistDataSchema },
+    ownershipData: { type: OwnershipDataSchema },
+
+    notes: { type: String },
+  },
+  {
+    timestamps: true,
+    ...schemaOptions,
+  },
 );
 
 export const Product = mongoose.model<IProduct>('Product', ProductSchema);
