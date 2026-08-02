@@ -39,7 +39,7 @@ export const productRoutes = new Elysia({ prefix: '/products' })
     const product = await Product.findByIdAndUpdate(
       params.id,
       { $set: body as ProductUpdate },
-      { new: true, runValidators: true },
+      { returnDocument: 'after', runValidators: true },
     );
     if (!product) throw new NotFoundError();
     return { ...product.toObject(), _id: product._id.toString() };
