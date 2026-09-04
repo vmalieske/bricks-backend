@@ -6,6 +6,7 @@ export interface ScrapeResult {
   brickFormat: string | null;
   productMeasurements: string | null;
   imageUrl: string | null;
+  imageUrls: string[];
   price: { amount: number; currency: string } | null;
   shopUrl: string;
 }

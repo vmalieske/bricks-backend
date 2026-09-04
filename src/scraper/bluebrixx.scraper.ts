@@ -24,6 +24,20 @@ export class BlueBrixxScraper implements Scraper {
         .trim() ?? null;
 
     const imageUrl = $cheerio('meta[property="og:image"]').attr('content') ?? null;
+    const imageUrls = title
+      ? Array.from(
+          new Set(
+            $cheerio('img')
+              .filter((_, el) => $cheerio(el).attr('alt') === title)
+              .map((_, el) => $cheerio(el).attr('src'))
+              .get()
+              .filter(
+                (src): src is string => !!src && src.startsWith('https://www.bluebrixx.com/media/'),
+              ),
+          ),
+        )
+      : [];
+
     const brand = $cheerio('meta[property="product:brand"]').attr('content') ?? null;
     const priceAmount = $cheerio('meta[property="product:price:amount"]').attr('content');
     const priceCurrency =
@@ -79,6 +93,7 @@ export class BlueBrixxScraper implements Scraper {
       brickFormat,
       productMeasurements: measurements,
       imageUrl,
+      imageUrls,
       price: priceAmount
         ? {
             amount: parseFloat(priceAmount),
