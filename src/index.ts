@@ -1,8 +1,11 @@
 import { Elysia } from 'elysia';
 import { cors } from '@elysiajs/cors';
+import { staticPlugin } from '@elysiajs/static';
+
 import { connectDB } from './db';
 import { productRoutes } from './routes/product.routes';
 import { scrapeRoutes } from './routes/scrape.routes';
+import { uploadRoutes } from './routes/upload.routes';
 
 await connectDB();
 
@@ -13,9 +16,11 @@ const app = new Elysia()
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }),
   )
+  .use(staticPlugin({ prefix: '/uploads', assets: 'uploads' }))
   .get('/health', () => ({ status: 'ok', timestamp: new Date().toISOString() }))
   .use(productRoutes)
   .use(scrapeRoutes)
+  .use(uploadRoutes)
   .listen(process.env.PORT ?? 3000);
 
 console.log(`Backend is running on http://localhost:${app.server?.port}`);
