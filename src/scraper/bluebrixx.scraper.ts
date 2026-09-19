@@ -24,11 +24,19 @@ export class BlueBrixxScraper implements Scraper {
         .trim() ?? null;
 
     const imageUrl = $cheerio('meta[property="og:image"]').attr('content') ?? null;
+    const normalizeTitle = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const normalizedTitle = title ? normalizeTitle(title) : '';
+
     const imageUrls = title
       ? Array.from(
           new Set(
             $cheerio('img')
-              .filter((_, el) => $cheerio(el).attr('alt') === title)
+              .filter((_, el) => {
+                const alt = $cheerio(el).attr('alt') ?? '';
+                const normalizedAlt = normalizeTitle(alt);
+                return normalizedAlt === normalizedTitle;
+              })
               .map((_, el) => $cheerio(el).attr('src'))
               .get()
               .filter(
